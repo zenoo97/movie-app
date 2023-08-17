@@ -7,6 +7,7 @@ import {
   ActivityIndicator,
   useColorScheme,
   ScrollView,
+  RefreshControl,
 } from "react-native";
 import styled from "styled-components/native";
 import Swiper from "react-native-web-swiper";
@@ -28,7 +29,7 @@ const ListTitle = styled.Text`
   margin-left: 30px;
 `;
 const TrendingScroll = styled.ScrollView`
-  margin-top: 20px;
+  margin-top: 10px;
 `;
 const Movie = styled.View`
   margin-right: 20px;
@@ -43,7 +44,33 @@ const Votes = styled.Text`
   color: rgba(255, 255, 255, 0.8);
   font-size: 10px;
 `;
+const ListContainer = styled.View`
+  margin-bottom: 20px;
+`;
+const HMovie = styled.View`
+  padding: 0px 30px;
+  flex-direction: row;
+  margin-bottom: 30px;
+`;
+const HColumn = styled.View`
+  margin-left: 15px;
+  width: 80%;
+`;
+const Overview = styled.Text`
+  color: white;
+  opacity: 0.8;
+  width: 80%;
+`;
+const Release = styled.Text`
+  color: white;
+  font-size: 12px;
+  margin-vertical: 10px;
+`;
+const ComingSoonTitle = styled(ListTitle)`
+  margin-bottom: 30px;
+`;
 const Movies = ({ navigation: { navigate } }) => {
+  const [refreshing, setRefreshing] = useState(false);
   const [loading, setLoading] = useState(true);
   const [nowPlaying, setNowPlaying] = useState([]);
   const [upComing, setUpComing] = useState([]);
@@ -74,6 +101,11 @@ const Movies = ({ navigation: { navigate } }) => {
     await Promise.all([getTrending(), getUpComing(), getNowPlaying()]);
     setLoading(false);
   };
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await getData();
+    setRefreshing(false);
+  };
   useEffect(() => {
     getData();
   }, []);
@@ -82,14 +114,18 @@ const Movies = ({ navigation: { navigate } }) => {
       <ActivityIndicator />
     </Loader>
   ) : (
-    <Container>
+    <Container
+      refreshControl={
+        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+      }
+    >
       <Swiper
         loop
         timeout={3.5}
         controlsEnabled={false}
         containerStyle={{
           width: "100%",
-          height: SCREEN_HEIGHT / 3,
+          height: SCREEN_HEIGHT / 4,
           marginBottom: 30,
         }}
       >
@@ -104,23 +140,50 @@ const Movies = ({ navigation: { navigate } }) => {
           />
         ))}
       </Swiper>
-      <ListTitle>Trending Movies</ListTitle>
-      <TrendingScroll
-        contentContainerStyle={{ paddingLeft: 30 }}
-        horizontal
-        showsHorizontalScrollIndicator={false}
-      >
-        {trending.map((movie) => (
-          <Movie key={movie.id}>
-            <Poster path={movie.poster_path} />
-            <Title>
-              {movie.original_title.slice(0, 13)}
-              {movie.original_title.length > 13 ? "..." : null}
-            </Title>
-            <Votes>⭐{movie.vote_average}/10</Votes>
-          </Movie>
-        ))}
-      </TrendingScroll>
+      <ListContainer>
+        <ListTitle>Trending Movies</ListTitle>
+        <TrendingScroll
+          contentContainerStyle={{ paddingLeft: 30 }}
+          horizontal
+          showsHorizontalScrollIndicator={false}
+        >
+          {trending.map((movie) => (
+            <Movie key={movie.id}>
+              <Poster path={movie.poster_path} />
+              <Title>
+                {movie.original_title.slice(0, 13)}
+                {movie.original_title.length > 13 ? "..." : null}
+              </Title>
+              <Votes>
+                {movie.vote_average > 0
+                  ? `⭐ ${movie.vote_average}/10`
+                  : `Coming soon`}
+              </Votes>
+            </Movie>
+          ))}
+        </TrendingScroll>
+      </ListContainer>
+      <ComingSoonTitle>Coming soon</ComingSoonTitle>
+      {upComing.map((movie) => (
+        <HMovie key={movie.id}>
+          <Poster path={movie.poster_path} />
+          <HColumn>
+            <Title>{movie.original_title}</Title>
+            <Release>
+              {new Date(movie.release_date).toLocaleDateString("ko", {
+                month: "long",
+                day: "numeric",
+                year: "numeric",
+              })}
+            </Release>
+            <Overview>
+              {movie.overview !== "" && movie.overview.length > 80
+                ? `${movie.overview.slice(0, 140)}...`
+                : movie.overview}
+            </Overview>
+          </HColumn>
+        </HMovie>
+      ))}
     </Container>
   );
 };
