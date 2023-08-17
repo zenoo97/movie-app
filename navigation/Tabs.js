@@ -7,6 +7,9 @@ import { FontAwesome5, FontAwesome } from "@expo/vector-icons";
 import Tv from "../screens/Tv";
 import Movies from "../screens/Movies";
 import Search from "../screens/Search";
+import Prices from "../project_screen/Prices";
+import Coins from "../project_screen/Coins";
+
 const Tab = createBottomTabNavigator();
 
 const Tabs = () => {
@@ -36,23 +39,25 @@ const Tabs = () => {
       }}
     >
       <Tab.Screen
-        name="Movies"
-        component={Movies}
+        name="Prices"
+        component={Prices}
         options={{
           tabBarIcon: ({ focused, color, size }) => {
             console.log(focused, color, size);
-            return <FontAwesome5 name="film" color={color} size={size} />;
+            return <FontAwesome5 name="coins" color={color} size={size} />;
           },
+          // <FontAwesome5 name="film" color={color} size={size} />;
         }}
       />
       <Tab.Screen
-        name="TV"
-        component={Tv}
+        name="Coins"
+        component={Coins}
         options={{
           tabBarIcon: ({ focused, color, size }) => {
             console.log(focused, color, size);
-            return <FontAwesome5 name="tv" color={color} size={size} />;
+            return <FontAwesome name="dollar" color={color} size={size} />;
           },
+          // <FontAwesome5 name="tv" color={color} size={size} />
         }}
       />
       <Tab.Screen
