@@ -6,11 +6,12 @@ import {
   Dimensions,
   ActivityIndicator,
   useColorScheme,
+  ScrollView,
 } from "react-native";
 import styled from "styled-components/native";
 import Swiper from "react-native-web-swiper";
 import Slide from "../components/Slide";
-
+import Poster from "../components/Poster";
 const { height: SCREEN_HEIGHT } = Dimensions.get("window");
 const API_KEY = "f7bb1cc5b3d4e2f328321b87a0b9b675";
 const Container = styled.ScrollView``;
@@ -19,6 +20,28 @@ const Loader = styled.View`
   flex: 1;
   justify-content: center;
   align-items: center;
+`;
+const ListTitle = styled.Text`
+  color: white;
+  font-size: 18px;
+  font-weight: 600;
+  margin-left: 30px;
+`;
+const TrendingScroll = styled.ScrollView`
+  margin-top: 20px;
+`;
+const Movie = styled.View`
+  margin-right: 20px;
+`;
+const Title = styled.Text`
+  color: white;
+  font-weight: 600;
+  margin-top: 7px;
+  margin-bottom: px;
+`;
+const Votes = styled.Text`
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 10px;
 `;
 const Movies = ({ navigation: { navigate } }) => {
   const [loading, setLoading] = useState(true);
@@ -64,7 +87,11 @@ const Movies = ({ navigation: { navigate } }) => {
         loop
         timeout={3.5}
         controlsEnabled={false}
-        containerStyle={{ width: "100%", height: SCREEN_HEIGHT / 3 }}
+        containerStyle={{
+          width: "100%",
+          height: SCREEN_HEIGHT / 3,
+          marginBottom: 30,
+        }}
       >
         {nowPlaying.map((movie) => (
           <Slide
@@ -77,6 +104,23 @@ const Movies = ({ navigation: { navigate } }) => {
           />
         ))}
       </Swiper>
+      <ListTitle>Trending Movies</ListTitle>
+      <TrendingScroll
+        contentContainerStyle={{ paddingLeft: 30 }}
+        horizontal
+        showsHorizontalScrollIndicator={false}
+      >
+        {trending.map((movie) => (
+          <Movie key={movie.id}>
+            <Poster path={movie.poster_path} />
+            <Title>
+              {movie.original_title.slice(0, 13)}
+              {movie.original_title.length > 13 ? "..." : null}
+            </Title>
+            <Votes>⭐{movie.vote_average}/10</Votes>
+          </Movie>
+        ))}
+      </TrendingScroll>
     </Container>
   );
 };
