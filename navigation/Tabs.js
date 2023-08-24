@@ -39,25 +39,25 @@ const Tabs = () => {
       }}
     >
       <Tab.Screen
-        name="Prices"
-        component={Prices}
+        name="Movies"
+        component={Movies}
         options={{
           tabBarIcon: ({ focused, color, size }) => {
             console.log(focused, color, size);
-            return <FontAwesome5 name="coins" color={color} size={size} />;
+            return <FontAwesome5 name="film" color={color} size={size} />;
           },
-          // <FontAwesome5 name="film" color={color} size={size} />;
+          //
         }}
       />
       <Tab.Screen
-        name="Coins"
-        component={Coins}
+        name="Tv"
+        component={Tv}
         options={{
           tabBarIcon: ({ focused, color, size }) => {
             console.log(focused, color, size);
-            return <FontAwesome name="dollar" color={color} size={size} />;
+            return <FontAwesome5 name="tv" color={color} size={size} />;
           },
-          // <FontAwesome5 name="tv" color={color} size={size} />
+          //
         }}
       />
       <Tab.Screen

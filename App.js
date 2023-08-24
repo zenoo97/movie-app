@@ -10,7 +10,15 @@ import { useColorScheme } from "react-native";
 import Stack from "./navigation/Stack";
 import Root from "./navigation/Root";
 import { darkTheme, lightTheme } from "./styled";
+import {
+  useQuery,
+  useMutation,
+  useQueryClient,
+  QueryClient,
+  QueryClientProvider,
+} from "@tanstack/react-query";
 
+const queryClient = new QueryClient();
 export default function App() {
   const isDark = useColorScheme() === "dark";
   const startLoading = async () => {
@@ -18,10 +26,12 @@ export default function App() {
     await Promise.all([...fonts]);
   };
   return (
-    <ThemeProvider theme={isDark ? darkTheme : lightTheme}>
-      <NavigationContainer>
-        <Root />
-      </NavigationContainer>
-    </ThemeProvider>
+    <QueryClientProvider client={queryClient}>
+      <ThemeProvider theme={isDark ? darkTheme : lightTheme}>
+        <NavigationContainer>
+          <Root />
+        </NavigationContainer>
+      </ThemeProvider>
+    </QueryClientProvider>
   );
 }

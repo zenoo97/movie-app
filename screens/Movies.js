@@ -10,13 +10,12 @@ import {
   RefreshControl,
   FlatList,
 } from "react-native";
+
 import styled from "styled-components/native";
 import Swiper from "react-native-web-swiper";
 import Slide from "../components/Slide";
 import Poster from "../components/Poster";
 const { height: SCREEN_HEIGHT } = Dimensions.get("window");
-const API_KEY = "f7bb1cc5b3d4e2f328321b87a0b9b675";
-const Container = styled.ScrollView``;
 
 const Loader = styled.View`
   flex: 1;
@@ -70,46 +69,54 @@ const Release = styled.Text`
 const ComingSoonTitle = styled(ListTitle)`
   margin-bottom: 30px;
 `;
+
+const VSeperator = styled.View`
+  width: 20px;
+`;
+const HSeperator = styled.View`
+  width: 20px;
+`;
+
 const Movies = ({ navigation: { navigate } }) => {
   const [refreshing, setRefreshing] = useState(false);
-  const [loading, setLoading] = useState(true);
-  const [nowPlaying, setNowPlaying] = useState([]);
-  const [upComing, setUpComing] = useState([]);
-  const [trending, setTrending] = useState([]);
-  const getTrending = async () => {
-    const response = await fetch(
-      `https://api.themoviedb.org/3/trending/movie/week?api_key=${API_KEY}`
-    );
-    const { results } = await response.json();
-    setTrending(results);
-  };
-  const getUpComing = async () => {
-    const response = await fetch(
-      `https://api.themoviedb.org/3/movie/upcoming?api_key=${API_KEY}&language=en-US&page=1&region=KR`
-    );
-    const { results } = await response.json();
-    setUpComing(results);
-  };
-  const getNowPlaying = async () => {
-    const response = await fetch(
-      `https://api.themoviedb.org/3/movie/now_playing?api_key=${API_KEY}&language=en-US&page=1&region=KR`
-    );
-    const { results } = await response.json();
-    setNowPlaying(results);
-  };
-  const getData = async () => {
-    //wait for all of them
-    await Promise.all([getTrending(), getUpComing(), getNowPlaying()]);
-    setLoading(false);
-  };
-  const onRefresh = async () => {
-    setRefreshing(true);
-    await getData();
-    setRefreshing(false);
-  };
+
+  const onRefresh = async () => {};
   useEffect(() => {
     getData();
   }, []);
+  const renderVMedia = ({ item }) => (
+    <Movie>
+      <Poster path={item.poster_path} />
+      <Title>
+        {item.original_title.slice(0, 12)}
+        {item.original_title.length > 12 ? "..." : null}
+      </Title>
+      <Votes>
+        {item.vote_average > 0 ? `⭐ ${item.vote_average}/10` : `Coming soon`}
+      </Votes>
+    </Movie>
+  );
+  const renderHMedia = ({ item }) => (
+    <HMovie>
+      <Poster path={item.poster_path} />
+      <HColumn>
+        <Title>{item.original_title}</Title>
+        <Release>
+          {new Date(item.release_date).toLocaleDateString("ko", {
+            month: "long",
+            day: "numeric",
+            year: "numeric",
+          })}
+        </Release>
+        <Overview>
+          {item.overview !== "" && item.overview.length > 80
+            ? `${item.overview.slice(0, 140)}...`
+            : item.overview}
+        </Overview>
+      </HColumn>
+    </HMovie>
+  );
+  const movieKeyExtractor = (item) => item.id;
   return loading ? (
     <Loader>
       <ActivityIndicator />
@@ -145,53 +152,21 @@ const Movies = ({ navigation: { navigate } }) => {
             <ListTitle>Trending Movies</ListTitle>
             <TrendingScroll
               horizontal
-              keyExtractor={(item) => item.id}
+              keyExtractor={movieKeyExtractor}
               showsHorizontalScrollIndicator={false}
-              ItemSeparatorComponent={() => <View style={{ width: 20 }}></View>}
+              ItemSeparatorComponent={VSeperator}
               contentContainerStyle={{ paddingHorizontal: 30 }}
               data={trending}
-              renderItem={({ item }) => (
-                <Movie>
-                  <Poster path={item.poster_path} />
-                  <Title>
-                    {item.original_title.slice(0, 12)}
-                    {item.original_title.length > 12 ? "..." : null}
-                  </Title>
-                  <Votes>
-                    {item.vote_average > 0
-                      ? `⭐ ${item.vote_average}/10`
-                      : `Coming soon`}
-                  </Votes>
-                </Movie>
-              )}
+              renderItem={renderVMedia}
             />
           </ListContainer>
           <ComingSoonTitle>Coming soon</ComingSoonTitle>
         </>
       }
       data={upComing}
-      keyExtractor={(item) => item.id}
-      ItemSeparatorComponent={() => <View style={{ height: 20 }}></View>}
-      renderItem={({ item }) => (
-        <HMovie>
-          <Poster path={item.poster_path} />
-          <HColumn>
-            <Title>{item.original_title}</Title>
-            <Release>
-              {new Date(item.release_date).toLocaleDateString("ko", {
-                month: "long",
-                day: "numeric",
-                year: "numeric",
-              })}
-            </Release>
-            <Overview>
-              {item.overview !== "" && item.overview.length > 80
-                ? `${item.overview.slice(0, 140)}...`
-                : item.overview}
-            </Overview>
-          </HColumn>
-        </HMovie>
-      )}
+      keyExtractor={movieKeyExtractor}
+      ItemSeparatorComponent={HSeperator}
+      renderItem={renderHMedia}
     />
   );
 };
