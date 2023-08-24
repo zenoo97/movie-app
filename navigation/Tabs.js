@@ -20,6 +20,7 @@ const Tabs = () => {
         backgroundColor: "#1e272e",
       }}
       screenOptions={{
+        unmountOnBlur: true,
         tabBarStyle: {
           backgroundColor: "#1E2229",
         },
